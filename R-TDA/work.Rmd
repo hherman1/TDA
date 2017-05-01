@@ -1,0 +1,135 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
+
+```{r}
+library(TDA)
+library(igraph)
+```
+
+```{r}
+#csv = read.csv("POS-15-1-edge.csv",as.is = T)
+#csv = read.csv("POS-10-1-edge.csv",as.is = T)
+csv = read.csv("POS-20-1-edge.csv",as.is = T)
+```
+
+```{r}
+graph = graph_from_edgelist(cbind(csv$Source,csv$Target),directed=FALSE)
+E(graph)$weight = csv$Weight
+A = as_adjacency_matrix(graph,type="both",attr="weight",sparse=F)
+A = 1/A
+#A = 1/log(log(A+1)+1)
+```
+
+
+
+```{r}
+data = ripsDiag(A,2,max(A),dist="arbitrary",printProgress=T,location=TRUE)
+```
+
+```{r}
+
+printCycle = function(n) {
+  cycle = data$cycleLocation[[n]]
+  weights = E(graph)[get.edge.ids(graph,t(data$cycleLocation[[n]]))]$weight
+  result = rep(NA,length(weights))
+  for(i in 1:length(weights)) {
+    ns = names(V(graph)[cycle[i,]])
+    result[i] = paste(ns[1],"-",weights[i],"-",ns[2])
+  }
+  paste(result,collapse=", ")
+}
+getCycle = function(n) {
+  list(
+    dimension=data$diagram[n,"dimension"],
+    birth=1/data$diagram[n,"Birth"],
+    death=1/data$diagram[n,"Death"],
+    cycle= printCycle(n)
+  )
+}
+```
+
+```{r}
+
+printTriangle = function(n) {
+  
+  cycle = data$cycleLocation[[n]]
+  N = dim(cycle)[1]
+  
+  result = rep(NA,length(N))
+  
+  for(i in 1:N) {
+    ns = names(V(graph)[cycle[i,]])
+    result[i] = paste(ns[1],"-",ns[2],"-",ns[3])
+  }
+  result
+}
+getTriangle = function(n) {
+  list(
+    dimension=data$diagram[n,"dimension"],
+    birth=1/data$diagram[n,"Birth"],
+    death=1/data$diagram[n,"Death"],
+    cycle= printCycle(n)
+  )
+}
+```
+
+```{r}
+test = data.frame(t(sapply(276:280,function(n) {
+  unlist(getCycle(n))
+})))
+#View(test)
+write.table(test,"C:/Users/thepr/Code/Topology/R-TDA/test3.table",quote=F,sep = ", ",eol="\n\n",row.names=F)
+```
+```{r}
+read.graph("POS-15-1-edge.csv",format="cs")
+```
+
+```{r}
+write.table(names(V(graph)),"C:/Users/thepr/Code/Topology/data/PoS.filter",quote=F,col.names = F,row.names = F)
+```
+
+```{r}
+test = read.table("C:/Users/thepr/Code/Topology/data/PoS.mat.clean.filtered",sep=" ",row.names = NULL)
+test = as.matrix(test[1:274,1:274])
+A = test
+```
+
+```{r}
+ns = read.table("C:/Users/thepr/Code/Topology/data/PoS.vec.clean.filtered",sep=" ",row.names = NULL,skip=1,as.is = T)
+ns = ns[,1]
+```
+
+```{r}
+printCycle2 = function(n) {
+  cycle = data$cycleLocation[[n]]
+  weights = A[cycle]
+  result = rep(NA,length(weights))
+  for(i in 1:length(weights)) {
+    pair = ns[cycle[i,]]
+    result[i] = sprintf("%s - %.2f - %s", pair[1],weights[i],pair[2])
+  }
+  paste(result,collapse=", ")
+}
+getCycle2 = function(n) {
+  list(
+    dimension=data$diagram[n,"dimension"],
+    birth=data$diagram[n,"Birth"],
+    death=data$diagram[n,"Death"],
+    cycle= printCycle2(n)
+  )
+}
+```
+
+```{r}
+test = data.frame(t(sapply(276:375,function(n) {
+  unlist(getCycle2(n))
+})))
+#View(test)
+write.table(df[with(df,order(duration,decreasing=T)),][,c(1,2,3,5,4)],"C:/Users/thepr/Code/Topology/R-TDA/PoS.w2v.table",quote=F,sep = ", ",eol="\n\n",row.names=F)
+```

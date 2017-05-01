@@ -1,0 +1,12 @@
+Here I will log some work that has been done:
+
+Warden:
+
+Cleaned: removed punctuation, sent all to lower case
+Filtered by PoS data: took the complement of the 'important words' of PoS, stored in PoS.clean.filter.complement,
+ then took the complement of this set in the set of unique words from warden (warden.clean.unique), which removed
+ about 3000 words, and is stored in warden.clean.filter
+
+ Next step: Density filtering.
+ The complement filtering should remove "trash" words like "the", "a", etc. so density filtering on what remains is 
+ unlikely to procuce a meaningless selection. 

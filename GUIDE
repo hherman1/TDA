@@ -1,0 +1,5 @@
+To convert .vec to .mat:
+`Vec2DistanceMat.exe <.vec path> <.mat path>`
+
+To convert .txt to .vec:
+
