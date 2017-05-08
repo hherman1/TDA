@@ -10,6 +10,7 @@ Try executing this chunk by clicking the *Run* button within the chunk or by pla
 ```{r}
 library(TDA)
 library(igraph)
+library(FNN)
 ```
 
 ```{r}
@@ -121,15 +122,130 @@ getCycle2 = function(n) {
     dimension=data$diagram[n,"dimension"],
     birth=data$diagram[n,"Birth"],
     death=data$diagram[n,"Death"],
+    duration = data$diagram[n,"Death"] - data$diagram[n,"Birth"],
     cycle= printCycle2(n)
   )
 }
 ```
 
 ```{r}
-test = data.frame(t(sapply(276:375,function(n) {
+test = data.frame(t(sapply(275:(dim(data$diagram)[1]),function(n) {
   unlist(getCycle2(n))
 })))
-#View(test)
-write.table(df[with(df,order(duration,decreasing=T)),][,c(1,2,3,5,4)],"C:/Users/thepr/Code/Topology/R-TDA/PoS.w2v.table",quote=F,sep = ", ",eol="\n\n",row.names=F)
+View(test)
+#write.table(df[with(df,order(duration,decreasing=T)),][,c(1,2,3,5,4)],"C:/Users/thepr/Code/Topology/R-TDA/PoS.w2v.table",quote=F,sep = ", ",eol="\n\n",row.names=F)
+```
+
+```{r}
+warden.vec = read.table("C:/Users/thepr/Code/Topology/data/warden.clean.vec.filtered",skip=1,sep=" ")
+warden.vec.clean = as.matrix(warden.vec[1:1671,2:101])
+rownames(warden.vec.clean) = as.character(warden.vec[,1])
+```
+
+```{r}
+warden.dist = as.matrix(dist(warden.vec.clean,diag=TRUE,upper=TRUE))
+```
+
+```{r}
+
+warden = read.table("C:/Users/thepr/Code/Topology/data/warden.clean.filtered.mat",sep=" ",row.names = NULL)
+warden = as.matrix(warden[1:1671,1:1671] )
+```
+
+```{r}
+confessions.vec = read.table("C:/Users/thepr/Code/Topology/data/confessions.clean.vec.complement",skip=1,sep=" ")
+```
+
+```{r}
+confessions.vec.clean = as.matrix(confessions.vec[1:1930,2:101])
+rownames(confessions.vec.clean) = as.character(confessions.vec[,1])
+
+confessions.dist = as.matrix(dist(confessions.vec.clean,diag=TRUE,upper=TRUE))
+```
+
+
+
+```{r}
+confessions.vec = read.table("C:/Users/thepr/Code/Topology/data/confessions.clean.vec.15.filtered",skip=1,sep=" ")
+```
+
+```{r}
+confessions.vec.clean = as.matrix(confessions.vec[,2:101])
+rownames(confessions.vec.clean) = as.character(confessions.vec[,1])
+
+confessions.dist = as.matrix(dist(confessions.vec.clean,diag=TRUE,upper=TRUE))
+```
+
+
+```{r}
+shakespeare.vec = read.table("C:/Users/thepr/Code/Topology/data/shakespeare.clean.vec.filtered",skip=1,sep=" ")
+```
+
+```{r}
+shakespeare.vec.clean = as.matrix(shakespeare.vec[1:12524,2:101])
+rownames(shakespeare.vec.clean) = as.character(shakespeare.vec[,1])
+
+shakespeare.dist = as.matrix(dist(shakespeare.vec.clean,diag=TRUE,upper=TRUE))
+```
+
+```{r}
+hamlet.vec = read.table("C:/Users/thepr/Code/Topology/data/hamlet.clean.vec.complement",skip=1,sep=" ")
+```
+
+```{r}
+confessions = "C:/Users/thepr/Code/Topology/data/confessions.clean.vec.complement"
+hegel.15 = "C:/Users/thepr/Code/Topology/data/PoS.clean.vec.15.filtered"
+hegel = "C:/Users/thepr/Code/Topology/data/PoS.vec.clean.filtered"
+filename = hegel
+dataset.vec = read.table(filename,skip=1,sep=" ")
+```
+
+```{r}
+dataset.vec.clean = as.matrix(dataset.vec[,2:101])
+rownames(dataset.vec.clean) = as.character(dataset.vec[,1])
+
+dataset.dist = as.matrix(dist(dataset.vec.clean,diag=TRUE,upper=TRUE))
+```
+
+```{r}
+N = dim(dataset.dist)[1]
+k = 35
+dataset.knn.dist = rep(NA,N)
+for(i in 1:N) {
+  dataset.knn.dist[i] = sort(dataset.dist[i,])[k]
+}
+names(dataset.knn.dist) = rownames(dataset.dist)
+T = 0.05;
+cutoff = 300;
+dataset.knn.cutoff = sort(dataset.knn.dist,decreasing=FALSE)[cutoff]
+dataset.filter = dataset.knn.dist <= dataset.knn.cutoff
+dataset.dist.filtered = dataset.dist[dataset.filter,dataset.filter]
+```
+
+```{r}
+A = dataset.dist
+data = ripsDiag(A,1,max(A),dist="arbitrary",printProgress=TRUE,location=TRUE)
+ns = rownames(A)
+```
+
+```{r}
+ns = rownames(dataset.dist.filtered)
+```
+
+```{r}
+write.table(warden.filter,"C:/Users/thepr/Code/Topology/data/warden.clean.filter.knn.75",quote=F,sep="\n",row.names=F,col.names=F)
+```
+
+```{r}
+count = 0;
+contains = rep(NA,400)
+locs = rep(NA,400)
+for(i in 1:(length(data$cycleLocation))) {
+  cycle = data$cycleLocation[[i]]
+  if(any(2 == cycle)) {
+    contains[count] = data$cycleLocation[i]
+    locs[count] = i;
+    count = count + 1;
+  }
+}
 ```

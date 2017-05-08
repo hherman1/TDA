@@ -68,9 +68,9 @@ int main(int argc, char*argv[])
 	//cleanFile("C:\\Users\\thepr\\Code\\Topology\\data\\Phenomenology of Spirit - G. W. F. Hegel.txt", "C:/Users/thepr/Code/Topology/data/PoS.clean");
 	//constructFilter("C:\\Users\\thepr\\Code\\Topology\\data\\PoS.filter");
 	
-	//filterVecFile("C:\\Users\\thepr\\Code\\Topology\\data\\PoS.vec.clean", "C:/Users/thepr/Code/Topology/data/PoS.filter.clean", "C:\\Users\\thepr\\Code\\Topology\\data\\PoS.vec.clean.filtered");
+	filterVecFile("C:\\Users\\thepr\\Code\\Topology\\data\\warden.clean.vec", "C:/Users/thepr/Code/Topology/data/PoS.filter.clean", "C:\\Users\\thepr\\Code\\Topology\\data\\PoS.vec.clean.filtered");
 	//distanceMatrix("C:\\Users\\thepr\\Code\\Topology\\data\\PoS.vec.clean.filtered", "C:/Users/thepr/Code/Topology/data/PoS.mat.clean.filtered");
-	complementFilter("C:\\Users\\thepr\\Code\\Topology\\data\\PoS.filter.clean", "C:/Users/thepr/Code/Topology/data/PoS.clean","C:/Users/thepr/Code/Topology/data/PoS.clean.filter.complement");
+	//complementFilter("C:\\Users\\thepr\\Code\\Topology\\data\\PoS.filter.clean", "C:/Users/thepr/Code/Topology/data/PoS.clean","C:/Users/thepr/Code/Topology/data/PoS.clean.filter.complement");
 #endif // DEBUG
 	if (argc <= 1) {
 		helpDialog();
@@ -84,6 +84,9 @@ int main(int argc, char*argv[])
 		helpDialog();
 	}
 	else if (argc > 1 && string(argv[1]) == "-f") {
+		filterVecFile(argv[2], argv[3], argv[4]);
+	}
+	else if (argc > 1 && string(argv[1]) == "-fi") {
 		filterVecFile(argv[2], argv[3], argv[4]);
 	}
 	else if (argc > 1 && string(argv[1]) == "-complement") {
@@ -105,7 +108,8 @@ void helpDialog() {
 		<< "\t -h: Help dialog." << endl
 		<< "\t -v2m <infile> <outfile>: Convert infile (word2vec output) to distance matrix. " << endl
 		<< "\t -f <vector file> <filter file> <output file>: Keep only the vectors listed in the filter file. " << endl
-		<< "\t -c <inflie> <outfile>: Remove all punctuation and lowercase letters of input text file. " << endl 
+		<< "\t -fi <vector file> <indicesfilter file> <output file>: Keep only the vectors listed in the filter file. (listed by index) " << endl
+		<< "\t -c <inflie> <outfile>: Remove all punctuation and lowercase letters of input text file. " << endl
 		<< "\t -complement <filter file> <clean source file> <outfile>: Constructs a complement filter file to the filter file in the source document. " << endl
 		<< "\t -unique <source file> <outfile>: Constructs a filter file containing all of the unique words in the source file. " << endl << endl;
 }
